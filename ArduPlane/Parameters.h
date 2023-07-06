@@ -564,6 +564,34 @@ public:
 
     // just to make compilation easier when all things are compiled out...
     uint8_t unused_integer;
+
+
+    // 我们定义的参数
+    AP_Int8 target_select;
+    AP_Int32 target1_lat;
+    AP_Int32 target1_lng;
+    AP_Int32 target2_lat;
+    AP_Int32 target2_lng;
+    AP_Int32 target3_lat;
+    AP_Int32 target3_lng;
+    AP_Int32 target4_lat;
+    AP_Int32 target4_lng;
+    AP_Int32 target_alt;
+    AP_Int8 target_number1;
+    AP_Int8 target_number2;
+    AP_Int8 target_number3;
+    AP_Int8 target_number4;
+    AP_Int8 target_attack;
+    AP_Float drop_delay;
+    AP_Int32 drop_pwm;
+    AP_Float drop_p006;
+    AP_Float drop_p0007;
+    AP_Float drop_p034;
+    AP_Int32 drop_ph;
+    AP_Int32 climbdown_alt;
+    AP_Int8  climbdown_flag;
+    AP_Int8  drop_plane;
+    AP_Int8  tar_plane;
 };
 
 extern const AP_Param::Info var_info[];

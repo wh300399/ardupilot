@@ -37,7 +37,13 @@ const AP_Param::GroupInfo AP_L1_Control::var_info[] = {
     // @Range: 0 89
     // @User: Advanced
     AP_GROUPINFO("LIM_BANK",   3, AP_L1_Control, _loiter_bank_limit, 0.0f),
+     AP_GROUPINFO("oto_gain", 4, AP_L1_Control, oto_gain, 3),
 
+    AP_GROUPINFO("oto_choose", 5, AP_L1_Control, oto_choose, 2),
+
+     AP_GROUPINFO("oto_Use", 6, AP_L1_Control, oto_Use, 0),
+
+      AP_GROUPINFO("oto_dis", 7, AP_L1_Control, oto_dis, 10),
     AP_GROUPEND
 };
 
@@ -315,20 +321,58 @@ void AP_L1_Control::update_waypoint(const struct Location &prev_WP, const struct
         Nu = Nu1 + Nu2;
         _nav_bearing = wrap_PI(atan2f(AB.y, AB.x) + Nu1);   // bearing (radians) from AC to L1 point
     }
+    _prevent_indecision(Nu);//如果我们在一个狭窄的角度范围内，并且转弯角度已经改变，可以使用之前的转弯决定来防止转弯时的犹豫不决
 
-    _prevent_indecision(Nu);
     _last_Nu = Nu;
 
     //Limit Nu to +-(pi/2)
     Nu = constrain_float(Nu, -1.5708f, +1.5708f);
-    _latAccDem = K_L1 * groundSpeed * groundSpeed / _L1_dist * sinf(Nu);
+    _latAccDem = K_L1 * groundSpeed * groundSpeed / _L1_dist * sinf(Nu);//计算所需加速度，可以直接使用
+    Vector2f MTp;//获得距离目标北东距离
+    MTp = _current_loc.get_distance_NE(next_WP);
+    float MTps = MTp.length();
+    if (oto_choose > 5 && oto_Use != 0 && MTps >= oto_dis)//如果距离靶标太近就不要用了
+    {
+        float tan;
+        float tans;//速度方向角度
+        float MTs;
+        float view;
+        float tar;
+        float test;
 
+        //float oto;//向左转还是向右转
+        Vector2f MT;
+        tan = atan2f(_groundspeed_vector[0], _groundspeed_vector[1]);
+        if (tan > 1.570796)
+        {
+            tans = 7.853981 - tan;
+        }
+        else
+        {
+            tans = 1.5707963 - tan;
+        }
+        MT = _current_loc.get_distance_NE(next_WP);//获得距离下一个航点的北东距离
+        MTs = MT.length();//计算距离目标距离
+        tar = (static_cast<float>(_target_bearing_cd) / 18000) * 3.1415926;
+        view = tar - tans;//算视线角
+        //if(view<0)
+        //view = view + 3.1415926*2;//让视线角始终为正
+        //if(view>=3.1415926)//确认向左还是向右转
+        //oto=-1;
+        //else
+        //{oto=1;}
+
+        test = oto_gain * groundSpeed * groundSpeed * sinf(view) / MTs;//计算横向加速度
+        _latAccDem = test;//计算所需加速度，可以直接使用
+       // gcs().send_text(MAV_SEVERITY_CRITICAL, "a=%f",_latAccDem);
+    }
+    //_latAccDem = 6*groundSpeed * groundSpeed * groundSpeed* sinf(view)* sinf(view)/ MTs ;
     // Waypoint capture status is always false during waypoint following
     _WPcircle = false;
 
-    _bearing_error = Nu; // bearing error angle (radians), +ve to left of track
+    _bearing_error = Nu; // bearing error angle (radians), +ve to left of track，方位误差角
 
-    _data_is_stale = false; // status are correctly updated with current waypoint data
+    _data_is_stale = false; // status are correctly updated with current waypoint data最好留着
 }
 
 // update L1 control for loitering

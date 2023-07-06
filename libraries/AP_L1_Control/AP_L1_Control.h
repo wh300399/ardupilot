@@ -56,7 +56,10 @@ public:
     void update_heading_hold(int32_t navigation_heading_cd) override;
     void update_level_flight(void) override;
     bool reached_loiter_target(void) override;
-
+    AP_Float oto_gain;
+    AP_Int16  oto_choose;
+    AP_Int16  oto_Use;
+    AP_Int16  oto_dis;
     // set the default NAVL1_PERIOD
     void set_default_period(float period) {
         _L1_period.set_default(period);

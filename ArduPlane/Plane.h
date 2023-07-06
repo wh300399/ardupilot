@@ -1002,6 +1002,7 @@ private:
     void update_GPS_10Hz(void);
     void update_compass(void);
     void update_alt(void);
+    void test_mission(void);
 #if ADVANCED_FAILSAFE == ENABLED
     void afs_fs_check(void);
 #endif

@@ -349,6 +349,81 @@ void Plane::one_second_loop()
     }
 }
 
+
+void Plane::test_mission()//我把自己的任务加在这里
+{
+    if (g2.target_select == 0 || g2.target_select > 4 || g2.target_attack < 5)
+    {
+        if (control_mode->mode_number() == Mode::Number::AUTO || control_mode->mode_number() == Mode::Number::RTL)
+            ServoRelayEvents.do_set_servo(7, 1100);
+        ServoRelayEvents.do_set_servo(8, 2000);
+        return;
+    }
+    int latnow = current_loc.lat;//9位数
+    int lngnow = current_loc.lng;//10位数
+    int altnow = current_loc.alt - home.alt;//这个是厘米为单位
+    double c_lng, c_lat, a_lng, a_lat, a_dis, b_dis;
+    Vector2f _groundspeed_vector = ahrs.groundspeed_vector();
+    //float airspeednow = ahrs.airspeed_estimate(0);
+    float groundSpeed = _groundspeed_vector.length();//地速，m/s
+    c_lng = ((double)lngnow * 3.14159265359 / 10000000) / 180;
+    c_lat = ((double)latnow * 3.14159265359 / 10000000) / 180;
+    a_lng = 0;
+    a_lat = 0;
+    a_dis = 100000000;
+    switch (g2.target_select)//根据发来的靶标编号写入相应的经纬度，并设置第六通道的pwm
+    {
+    case 1:
+    {
+        a_lng = ((double)g2.target1_lng * 3.14159265359 / 10000000) / 180;
+        a_lat = ((double)g2.target1_lat * 3.14159265359 / 10000000) / 180;
+        a_dis = 6378137 * asinf(sqrtf(powf(sinf((a_lat - c_lat) / 2), 2) + cosf(a_lat) * cosf(c_lat) * powf(sinf((a_lng - c_lng) / 2), 2))) * 2;
+        break;
+    }
+
+    case 2:
+    {
+        a_lng = ((double)g2.target2_lng * 3.14159265359 / 10000000) / 180;
+        a_lat = ((double)g2.target2_lat * 3.14159265359 / 10000000) / 180;
+        a_dis = 6378137 * asinf(sqrtf(powf(sinf((a_lat - c_lat) / 2), 2) + cosf(a_lat) * cosf(c_lat) * powf(sinf((a_lng - c_lng) / 2), 2))) * 2;
+        break;
+    }
+    case 3:
+    {
+        a_lng = ((double)g2.target3_lng * 3.14159265359 / 10000000) / 180;//123
+        a_lat = ((double)g2.target3_lat * 3.14159265359 / 10000000) / 180;
+        a_dis = 6378137 * asinf(sqrtf(powf(sinf((a_lat - c_lat) / 2), 2) + cosf(a_lat) * cosf(c_lat) * powf(sinf((a_lng - c_lng) / 2), 2))) * 2;
+        break;
+    }
+    case 4:
+    {
+        a_lng = ((double)g2.target4_lng * 3.14159265359 / 10000000) / 180;//123
+        a_lat = ((double)g2.target4_lat * 3.14159265359 / 10000000) / 180;
+        a_dis = 6378137 * asinf(sqrtf(powf(sinf((a_lat - c_lat) / 2), 2) + cosf(a_lat) * cosf(c_lat) * powf(sinf((a_lng - c_lng) / 2), 2))) * 2;
+        break;
+    }
+    default:
+        break;
+    }
+
+
+
+
+    b_dis = logf(g2.drop_p0007 * (sqrtf((double)g2.drop_ph + (double)altnow / 100) * 0.45175 + g2.drop_p006) * groundSpeed + 1) / g2.drop_p0007;
+    if (a_dis - g2.drop_p034 * groundSpeed < b_dis)
+    {
+        ServoRelayEvents.do_set_servo(7, g2.drop_pwm);
+        ServoRelayEvents.do_set_servo(8, 0);
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "bomb drop  %f %f %d %f %f", groundSpeed, a_dis, current_loc.alt - home.alt, (float)airspeed.get_airspeed(), b_dis);
+    }
+    // else
+     // ServoRelayEvents.do_set_servo(7,1100);
+
+
+
+}
+
+
 void Plane::three_hz_loop()
 {
 #if AP_FENCE_ENABLED

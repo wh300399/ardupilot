@@ -1224,14 +1224,42 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     // @Description: Mask of output channels to use oneshot on
     // @User: Advanced
     // @Bitmask: 0: Servo 1, 1: Servo 2, 2: Servo 3, 3: Servo 4, 4: Servo 5, 5: Servo 6, 6: Servo 7, 7: Servo 8, 8: Servo 9, 9: Servo 10, 10: Servo 11, 11: Servo 12, 12: Servo 13, 13: Servo 14, 14: Servo 15
-    AP_GROUPINFO("ONESHOT_MASK", 32, ParametersG2, oneshot_mask, 0),
-
+   /* AP_GROUPINFO("ONESHOT_MASK", 32, ParametersG2, oneshot_mask, 0),*/
+    AP_GROUPINFO("TAR_SEL", 32, ParametersG2, target_select, 0),
+    AP_GROUPINFO("TAR1_LAT", 34, ParametersG2, target1_lat, 0),
+    AP_GROUPINFO("TAR1_LNG", 35, ParametersG2, target1_lng, 0),
+    AP_GROUPINFO("TAR2_LAT", 36, ParametersG2, target2_lat, 0),
+    AP_GROUPINFO("TAR2_LNG", 37, ParametersG2, target2_lng, 0),
+    AP_GROUPINFO("TAR3_LAT", 38, ParametersG2, target3_lat, 0),
+    AP_GROUPINFO("TAR3_LNG", 39, ParametersG2, target3_lng, 0),
+    AP_GROUPINFO("TAR4_LAT", 40, ParametersG2, target4_lat, 0),
+    AP_GROUPINFO("TAR4_LNG", 41, ParametersG2, target4_lng, 0),
+    AP_GROUPINFO("TAR_ALT",  42, ParametersG2, target_alt, 0),
+    AP_GROUPINFO("TAR_NUM1", 43, ParametersG2, target_number1, 0),
+    AP_GROUPINFO("TAR_NUM2", 44, ParametersG2, target_number2, 0),
+    AP_GROUPINFO("TAR_NUM3", 45, ParametersG2, target_number3, 0),
+    AP_GROUPINFO("TAR_NUM4", 46, ParametersG2, target_number4, 0),
+    AP_GROUPINFO("TAR_ACK",  47, ParametersG2, target_attack, 0),
+    AP_GROUPINFO("drop_delay",48, ParametersG2, drop_delay, 0.2),
+    AP_GROUPINFO("drop_pwm", 49, ParametersG2, drop_pwm, 1700),
+    AP_GROUPINFO("drop_p006", 50, ParametersG2, drop_p006, 0.06),//高度补偿（40米为0.06，20米改为0.03）
+    AP_GROUPINFO("drop_p0007", 51, ParametersG2, drop_p0007, 0.007),//阻力系数（40米为0.007，20米改为0.0085）
+    AP_GROUPINFO("drop_p034", 52, ParametersG2, drop_p034, 0.34),//舵机时间（40米为0.34，20米改为0.040）
+    AP_GROUPINFO("drop_ph", 53, ParametersG2, drop_ph, 0),//台面高度
+    AP_GROUPINFO("cl_alt", 54, ParametersG2, climbdown_alt, 1500),
+    AP_GROUPINFO("cl_flag", 55, ParametersG2, climbdown_flag, 0),
+    AP_GROUPINFO("drop_plan", 56, ParametersG2, drop_plane, 0),
+    AP_GROUPINFO("tar_plan", 57, ParametersG2, tar_plane, 0),
 #if AP_SCRIPTING_ENABLED
     // @Group: FOLL
     // @Path: ../libraries/AP_Follow/AP_Follow.cpp
     AP_SUBGROUPINFO(follow, "FOLL", 33, ParametersG2, AP_Follow),
 #endif
-    
+
+
+        
+
+
     AP_GROUPEND
 };
 

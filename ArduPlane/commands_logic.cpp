@@ -388,7 +388,67 @@ void Plane::do_takeoff(const AP_Mission::Mission_Command& cmd)
 
 void Plane::do_nav_wp(const AP_Mission::Mission_Command& cmd)
 {
-    set_next_WP(cmd.content.location);
+    Location tar;
+    if ((cmd.index == g2.target_number1 || cmd.index == g2.target_number2 || cmd.index == g2.target_number3 || cmd.index == g2.target_number4) && g2.target_select != 0 && g2.target_select < 5)//判断是否接收到指令
+    {
+
+
+        switch (g2.target_select)//根据发来的靶标编号写入相应的经纬度，并设置第六通道的pwm
+        {
+        case 1:
+        {
+            tar.lng = g2.target1_lng;
+            tar.lat = g2.target1_lat;
+            ServoRelayEvents.do_set_servo(6, 1300);
+            break;
+        }
+
+        case 2:
+        {
+            tar.lng = g2.target2_lng;
+            tar.lat = g2.target2_lat;
+            ServoRelayEvents.do_set_servo(6, 1500);
+            break;
+        }
+        case 3:
+        {
+            tar.lng = g2.target3_lng;
+            tar.lat = g2.target3_lat;
+            ServoRelayEvents.do_set_servo(6, 1700);
+            break;
+        }
+        case 4:
+        {
+            tar.lng = g2.target4_lng;
+            tar.lat = g2.target4_lat;
+            ServoRelayEvents.do_set_servo(6, 1900);
+            break;
+        }
+        default:
+            break;
+        }
+        L1_controller.oto_choose.set(8);//启用比例导引律
+        g2.target_attack.set(8);
+        tar.alt = g2.target_alt;//设置靶标高度
+        tar.relative_alt = 1;
+        tar.loiter_ccw = 0;
+        tar.terrain_alt = 0;
+        tar.origin_alt = 0;
+        tar.loiter_xtrack = 0;
+        set_next_WP(tar);
+    }
+    else
+    {
+        if (L1_controller.oto_choose >= 5)//如果是正常的航点执行，就关闭比例导引律
+            L1_controller.oto_choose.set(2);
+        if (g2.target_attack >= 5)
+            g2.target_attack.set(0);
+        ServoRelayEvents.do_set_servo(6, 1100);//设置6通道pwm
+        tar = cmd.content.location;
+        if (g2.climbdown_flag == 1)
+            tar.alt = g2.climbdown_alt;
+        set_next_WP(tar);//关键函数，在这里进行修改，定义三个航点结构体。loiter_xtrack
+    }
 }
 
 void Plane::do_land(const AP_Mission::Mission_Command& cmd)
