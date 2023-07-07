@@ -89,6 +89,7 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AP_OpticalFlow, &plane.optflow, update,    50,    50,  87),
 #endif
     SCHED_TASK(one_second_loop,         1,    400,  90),
+    SCHED_TASK(test_mission,         10,    100,  90),
     SCHED_TASK(three_hz_loop,           3,     75,  93),
     SCHED_TASK(check_long_failsafe,     3,    400,  96),
     SCHED_TASK_CLASS(AP_RPM,           &plane.rpm_sensor,     update,     10, 100,  99),
@@ -414,7 +415,7 @@ void Plane::test_mission()//我把自己的任务加在这里
     {
         ServoRelayEvents.do_set_servo(7, g2.drop_pwm);
         ServoRelayEvents.do_set_servo(8, 0);
-        gcs().send_text(MAV_SEVERITY_CRITICAL, "bomb drop  %f %f %d %f %f", groundSpeed, a_dis, current_loc.alt - home.alt, (float)airspeed.get_airspeed(), b_dis);
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "bomb drop  %f %f %ld %f %f", groundSpeed, a_dis, current_loc.alt - home.alt, (float)airspeed.get_airspeed(), b_dis);
     }
     // else
      // ServoRelayEvents.do_set_servo(7,1100);

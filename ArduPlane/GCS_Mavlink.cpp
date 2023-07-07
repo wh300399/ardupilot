@@ -1367,6 +1367,21 @@ void GCS_MAVLINK_Plane::handleMessage(const mavlink_message_t &msg)
 
         break;
     }
+   /* case MAVLINK_MSG_ID_ADSB_VEHICLE:
+    case MAVLINK_MSG_ID_UAVIONIX_ADSB_OUT_CFG:
+    case MAVLINK_MSG_ID_UAVIONIX_ADSB_OUT_DYNAMIC:
+    case MAVLINK_MSG_ID_UAVIONIX_ADSB_TRANSCEIVER_HEALTH_REPORT:
+        plane.adsb.handle_message(chan, msg);
+        break;*/
+
+    case MAVLINK_MSG_ID_TEST:    //这里我添加了测试信息的消息处理函数
+    {
+        mavlink_test_t packet;//定义一个数据包结构体
+        mavlink_msg_test_decode(&msg, &packet);//将消息包数据写入结构体中
+        plane.g2.target_select.set(packet.TEST);//将消息包里面的数据写入目标选择参数里面
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "here i am %d", packet.TEST);//发回数据，告诉地面站已经接到了数据
+        break;
+    }
 
     default:
         handle_common_message(msg);
